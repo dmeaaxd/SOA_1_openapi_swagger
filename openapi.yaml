@@ -1,0 +1,589 @@
+openapi: 3.0.0
+info:
+  title: Dragon Collection Management API
+  description: REST API для управления коллекцией объектов Dragon и выполнения операций.
+  version: 1.0.0
+servers:
+  - description: СОА Лабораторная №1
+    url: https://se.ifmo.ru/~s335057/
+
+tags:
+  - name: first service
+  - name: second service
+paths:
+  /dragons:
+    get:
+      tags:
+        - first service
+      summary: Получить массив объектов Dragon
+      description: Возвращает список драконов с поддержкой фильтрации, сортировки и постраничного вывода.
+      parameters:
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "id: asc, name: desc"
+          description: Сортировка по полям Dragon
+        - in: query
+          name: filter
+          schema:
+            type: string
+            example: "(id eq 10) and (name eq Dragon)"
+          description: |
+            Фильтрация по полям Dragon
+            
+            Операции сравнения: `eq` (=), `ne` (!=), `lt` (<), `le` (<=), `gt` (>), `ge` (>=)
+            Поддерживаются скобки и операции `and` и `or`
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+          description: Номер выводимой страницы
+        - in: query
+          name: size
+          schema:
+            type: integer
+            example: 10
+          description: Количество элементов на странице
+      responses:
+        200:
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+        400:
+          description: Неверные параметры запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Неверные параметры запроса
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+    post:
+      tags:
+        - first service
+      summary: Добавить нового дракона
+      description: Создает новый объект Dragon.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dragon'
+      responses:
+        201:
+          description: Дракон успешно создан
+        400:
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные данные
+        409:
+          description: Конфликт, дракон с таким ID уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 409
+                message: Конфликт, дракон с таким ID уже существует
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /dragons/{id}:
+    get:
+      tags:
+        - first service
+      summary: Получить дракона по ID
+      description: Возвращает информацию о драконе по идентификатору.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID дракона
+      responses:
+        200:
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dragon'
+        400:
+          description: Некорректный ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректный ID
+        404:
+          description: Дракон не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 404
+                message: Дракон не найден
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+    put:
+      tags:
+        - first service
+      summary: Обновить информацию о драконе
+      description: Обновляет данные дракона по идентификатору.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID дракона
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dragon'
+      responses:
+        200:
+          description: Информация обновлена
+        400:
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные данные
+        404:
+          description: Дракон не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 404
+                message: Дракон не найден
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+    delete:
+      tags:
+        - first service
+      summary: Удалить дракона
+      description: Удаляет дракона по идентификатору.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID дракона
+      responses:
+        204:
+          description: Успешно удалено
+        400:
+          description: Некорректный ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректный ID
+        404:
+          description: Дракон не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 404
+                message: Дракон не найден
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /dragons/search-by-name:
+    get:
+      tags:
+        - first service
+      summary: Найти драконов по подстроке в имени
+      description: Возвращает массив объектов, значение поля `name` которых начинается с заданной подстроки.
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          description: Подстрока имени дракона
+      responses:
+        200:
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+        400:
+          description: Некорректные параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные параметры
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /dragons/filter-by-killer:
+    get:
+      tags:
+        - first service
+      summary: Найти драконов с убийцей меньше указанного
+      description: |
+        Возвращает массив объектов, у которых значение поля `killer` меньше заданного.
+        
+        Некорректное поле для сравнение, сравнить объекты `Person` возможно только по полям `name` и `passportID`
+      parameters:
+        - in: query
+          name: passport-id
+          required: true
+          schema:
+            type: string
+          description: Паспорт убийцы
+      responses:
+        200:
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+        400:
+          description: Некорректные параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные параметры
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /dragons/filter-by-character:
+    get:
+      tags:
+        - first service
+      summary: Найти драконов по характеру
+      description: |
+        Возвращает массив объектов, значение поля `character` которых больше заданного.
+        
+        Сравнение будет происходить согласно порядку, заданному в enum
+      parameters:
+        - in: query
+          name: character
+          required: true
+          schema:
+            type: string
+            enum:
+              - CUNNING
+              - WISE
+              - CHAOTIC
+              - CHAOTIC_EVIL
+              - FICKLE
+          description: Минимальное значение поля character
+      responses:
+        200:
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dragon'
+        400:
+          description: Некорректные параметры
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные параметры
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /killer/teams/create/{team-id}/{team-name}/{team-size}/{start-cave-id}:
+    post:
+      tags:
+        - second service
+      summary: Создать команду убийц драконов
+      description: Создает новую команду убийц драконов и сохраняет её в БД.
+      parameters:
+        - in: path
+          name: team-id
+          required: true
+          schema:
+            type: integer
+          description: Уникальный идентификатор команды
+        - in: path
+          name: team-name
+          required: true
+          schema:
+            type: string
+          description: Имя команды
+        - in: path
+          name: team-size
+          required: true
+          schema:
+            type: integer
+          description: Размер команды
+        - in: path
+          name: start-cave-id
+          required: true
+          schema:
+            type: integer
+          description: ID начальной пещеры
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                killers-id: 
+                  type: array
+                  items:
+                    type: integer
+                    example: 1
+      responses:
+        201:
+          description: Команда успешно создана
+        400:
+          description: Некорректные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 400
+                message: Некорректные данные
+        409:
+          description: Конфликт, либо команда с таким ID уже существует, либо убийца уже находится в другой группе 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 409
+                message: Конфликт, либо команда с таким ID уже существует
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+  /killer/team/{team-id}/move-to-cave/{cave-id}:
+    post:
+      tags:
+        - second service
+      summary: Переместить команду в пещеру
+      description: Перемещает команду убийц драконов в указанную пещеру.
+      parameters:
+        - in: path
+          name: team-id
+          required: true
+          schema:
+            type: integer
+          description: ID команды
+        - in: path
+          name: cave-id
+          required: true
+          schema:
+            type: integer
+          description: ID пещеры
+      responses:
+        204:
+          description: Команда успешно перемещена
+        404:
+          description: Команда или пещера не найдены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 404
+                message: Команда или пещера не найдены
+        500:
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                code: 500
+                message: Ошибка сервера
+
+components:
+  schemas:
+    Dragon:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор дракона
+        name:
+          type: string
+          description: Имя дракона
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        creationDate:
+          type: string
+          format: date
+          description: Дата создания
+        age:
+          type: integer
+          description: Возраст дракона
+        color:
+          type: string
+          enum:
+            - BLACK
+            - ORANGE
+            - WHITE
+            - BROWN
+        type:
+          type: string
+          enum:
+            - WATER
+            - UNDERGROUND
+            - AIR
+            - FIRE
+        character:
+          type: string
+          enum:
+            - CUNNING
+            - WISE
+            - CHAOTIC
+            - CHAOTIC_EVIL
+            - FICKLE
+        killer:
+          $ref: '#/components/schemas/Person'
+
+    Coordinates:
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: number
+
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        passportID:
+          type: string
+          minLength: 10
+          maxLength: 32
+        location:
+          $ref: '#/components/schemas/Location'
+
+    Location:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        z:
+          type: number
+        name:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
